@@ -1,0 +1,126 @@
+﻿@page "/"
+
+@inject PaymentService paymentService
+
+<div class="container">
+    <div class="text-center">
+        <h2>Checkout</h2>
+    </div>
+    <hr class="mb-4" />
+    <EditForm Model="payment" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <div class="row">
+            <div class="col-md-4 order-md-2 mb-4">
+                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Carrinho</span>
+                    <span class="badge badge-secondary badge-pill">1</span>
+                </h4>
+                <ul class="list-group mb-3">
+                    <li class="list-group-item d-flex justify-content-between lh-condensed">
+                        <div>
+                            <h6 class="my-0">Item</h6>
+                        </div>
+                        <span class="text-muted">R$ 100,00</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong>R$ 100,00</strong>
+                    </li>
+                </ul>
+                <div class="input-group">
+                    <InputText class="form-control" @bind-Value="payment.Coupon" placeholder="Cupom" />
+                </div>
+            </div>
+            <div class="col-md-8 order-md-1">
+                <h4 class="mb-3">Dados pessoais</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name">Nome</label>
+                        <InputText class="form-control" @bind-Value="payment.Name" id="name" />
+                        <ValidationMessage For="() => payment.Name" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email">Email</label>
+                        <InputText class="form-control" @bind-Value="payment.Email" id="email" />
+                        <ValidationMessage For="() => payment.Email" />
+                    </div>
+                </div>
+
+                <hr class="mb-4" />
+
+                <h4 class="mb-3">Pagamento</h4>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="cardName">Nome no cartão</label>
+                        <InputText class="form-control" @bind-Value="payment.CardName" id="cardName" />
+                        <ValidationMessage For="() => payment.CardName" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="cardNumber">Número</label>
+                        <InputText class="form-control" @bind-Value="payment.CardNumber" id="cardNumber" />
+                        <ValidationMessage For="() => payment.CardNumber" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="expiration">Expiração</label>
+                        <InputText class="form-control" @bind-Value="payment.Expiration" id="expiration" />
+                        <ValidationMessage For="() => payment.Expiration" />
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="cvv">CVV</label>
+                        <InputNumber class="form-control" @bind-Value="payment.CVV" id="cvv" />
+                        <ValidationMessage For="() => payment.CVV" />
+                    </div>
+                </div>
+
+                <hr class="mb-4" />
+
+                <button class="btn btn-primary btn-lg btn-block"
+                        type="submit"
+                        disabled=@isSubmitting
+                        @onkeypress:preventDefault>
+                    Comprar
+                </button>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    bool isSubmitting { get; set; }
+    Payment payment { get; set; }
+
+    protected override void OnInitialized()
+    {
+        payment = new Payment()
+        {
+            Name = "João da Silva",
+            Email = "joao@silva.com",
+            CardName = "JOAO SILVA",
+            CardNumber = "5525083832884614",
+            Expiration = "12/2030",
+            CVV = 123,
+            Coupon = "THMPV"
+        };
+    }
+
+    async Task HandleValidSubmit(EditContext editContext)
+    {
+        if (isSubmitting)
+        {
+            return;
+        }
+
+        isSubmitting = true;
+
+        try
+        {
+            await paymentService.SendToQueue(payment);
+        }
+        finally
+        {
+            isSubmitting = false;
+        }
+    }
+}

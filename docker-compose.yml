@@ -1,0 +1,95 @@
+version: '3'
+
+services:
+  # start_dependencies:
+  #   container_name: dep
+  #   hostname: dep
+  #   image: alpine:latest
+  #   links:
+  #     - rabbitmq
+  #   depends_on:
+  #     - rabbitmq
+  #   command: >
+  #     /bin/sh -c "
+  #       echo Waiting for rabbitmq service start...;
+  #       while ! nc -z rabbitmq 5672;
+  #       do
+  #         sleep 1;
+  #       done;
+  #       echo Connected!;
+  #     "
+  #   networks:
+  #     - payment-micro
+
+  checkout:
+    container_name: checkout
+    hostname: checkout
+    image: joasimonson/payment-micro-checkout
+    environment:
+      RABBITMQ_DEFAULT_HOST: rabbitmq
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_PUBLISHER_EXCHANGE: payment_ex
+      bind-address: 0.0.0.0
+    ports:
+      - "8080:80"
+    restart: on-failure
+    depends_on:
+      - rabbitmq
+    networks:
+      - payment-micro
+
+  payment:
+    container_name: payment
+    hostname: payment
+    image: joasimonson/payment-micro-payment
+    environment:
+      URL_API_COUPON: http://coupon/
+      RABBITMQ_DEFAULT_HOST: rabbitmq
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_CONSUMER_QUEUE_NAME: payment
+      bind-address: 0.0.0.0
+    ports:
+      - "8081:80"
+    restart: on-failure
+    depends_on:
+      - coupon
+      - rabbitmq
+    networks:
+      - payment-micro
+
+  coupon:
+    container_name: coupon
+    hostname: coupon
+    image: joasimonson/payment-micro-coupon
+    environment:
+      bind-address: 0.0.0.0
+    ports:
+      - "8082:80"
+    networks:
+      - payment-micro
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbitmq
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_CONFIG_FILE: /etc/rabbitmq/rabbitmq.conf
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    networks:
+      - payment-micro
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://rabbitmq:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+
+networks:
+  payment-micro:
+    driver: bridge

@@ -1,0 +1,116 @@
+{
+  "rabbit_version": "3.8.9",
+  "rabbitmq_version": "3.8.9",
+  "product_name": "RabbitMQ",
+  "product_version": "3.8.9",
+  "users": [
+    {
+      "name": "rabbitmq",
+      "password_hash": "PueC8pXMgV6SxmWtJBrfohOVzaDbpThdg77V98tIs2WT26Vv",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "administrator"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "rabbitmq",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [
+    
+  ],
+  "parameters": [
+    
+  ],
+  "global_parameters": [
+    {
+      "name": "cluster_name",
+      "value": "rabbit@rabbit"
+    },
+    {
+      "name": "internal_cluster_id",
+      "value": "rabbitmq-cluster-id-ReyHxd2BCbXJhvyv6zBpow"
+    }
+  ],
+  "policies": [
+    
+  ],
+  "queues": [
+    {
+      "name": "payment_dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "payment_ex",
+        "x-message-ttl": 5000,
+        "x-queue-type": "classic"
+      }
+    },
+    {
+      "name": "payment",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "payment_dlx",
+        "x-queue-type": "classic"
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "payment_ex",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {
+        
+      }
+    },
+    {
+      "name": "payment_dlx",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {
+        
+      }
+    }
+  ],
+  "bindings": [
+    {
+      "source": "payment_dlx",
+      "vhost": "/",
+      "destination": "payment_dlq",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    },
+    {
+      "source": "payment_ex",
+      "vhost": "/",
+      "destination": "payment",
+      "destination_type": "queue",
+      "routing_key": "",
+      "arguments": {
+        
+      }
+    }
+  ]
+}
