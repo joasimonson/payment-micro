@@ -1,9 +1,9 @@
-import { v4 } from "https://deno.land/std@0.77.0/uuid/mod.ts";
+import { v4 } from 'https://deno.land/std@0.77.0/uuid/mod.ts';
 
-import { Payment } from "../types/payment.ts";
-import { CouponStatus } from "../types/coupon-status.ts";
-import { Order } from "../types/order.ts";
-import { verifyCoupon } from "./CouponService.ts";
+import { Payment } from '../types/payment.ts';
+import { CouponStatus } from '../types/coupon-status.ts';
+import { Order } from '../types/order.ts';
+import { verifyCoupon } from './CouponService.ts';
 
 export async function createPayment(payment: Payment) {
   const order = createOrder(payment);
@@ -13,15 +13,15 @@ export async function createPayment(payment: Payment) {
 
     switch (resultCoupon.status) {
       case CouponStatus.INVALID:
-        console.log("Order: ", order.id, ": invalid coupon!");
+        console.log('Order: ', order.id, ': invalid coupon!');
         break;
 
       case CouponStatus.VALID:
-        console.log("Order: ", order.id, ": Processed");
+        console.log('Order: ', order.id, ': Processed');
         break;
     }
   } catch (error) {
-    console.error("Order: ", order.id, ": could not process!");
+    console.error('Order: ', order.id, ': could not process!');
   }
 }
 

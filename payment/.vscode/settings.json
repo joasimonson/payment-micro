@@ -1,16 +1,13 @@
 {
   "debug.javascript.usePreview": false,
   "deno.enable": true,
+  "deno.lint": true,
   "deno.unstable": true,
-  "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
-  },
-  "vsicons.presets.angular": false,
+  "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true,
-  "deno.import_intellisense_origins": {
-    "https://deno.land": true
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true,
+    "source.fixAll": true
   },
-  "cSpell.words": [
-    "RABBITMQ"
-  ]
+  "cSpell.words": ["RABBITMQ"]
 }
